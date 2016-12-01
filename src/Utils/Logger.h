@@ -41,15 +41,14 @@ enum class LogLevel
 class Logger
 {
   public:
-    static void log(vis::LogLevel level, const char *file, uint16_t line,
-                    const char *format, ...);
+    static void log(vis::LogLevel level, const char *file, uint16_t line, const char *format, ...);
 
     constexpr static vis::LogLevel level()
     {
 #ifdef VIS_LOG_DEBUG
         return LogLevel::DEBUG;
 #endif
-        return LogLevel::ERROR;
+        return LogLevel::INFO;
     }
 
     static void initialize(const std::string log_location);

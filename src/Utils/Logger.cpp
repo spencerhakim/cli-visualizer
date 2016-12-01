@@ -16,8 +16,12 @@
 namespace
 {
 const static uint64_t k_max_log_line = 4096;
-const static std::vector<const char *> log_level_names{"DEBUG", "INFO", "WARN",
-                                                       "ERROR"};
+const static std::vector<const char *> log_level_names {
+  "DEBUG",
+  "INFO",
+  "WARN",
+  "ERROR"
+};
 }
 
 vis::Logger::Logger()
@@ -37,19 +41,22 @@ void vis::Logger::uninitialize()
     std::fclose(stderr);
 }
 
-void vis::Logger::log(vis::LogLevel level, const char *file, uint16_t line,
-                      const char *format, ...)
+void vis::Logger::log(vis::LogLevel level, const char *file, uint16_t line, const char *format, ...)
 {
     char message_text_buf[k_max_log_line];
+
     std::va_list args;
     va_start(args, format);
     vsnprintf(message_text_buf, k_max_log_line, format, args);
-    fprintf(
-        stderr, "%s:%d %s %s\n", file, line,
-        log_level_names[std::min(static_cast<uint8_t>(level),
-                                 static_cast<uint8_t>(vis::LogLevel::ERROR))],
-        message_text_buf);
     va_end(args);
+
+    fprintf(stderr, "[%s]\t%s:%d\t%s\n",
+        log_level_names[static_cast<uint8_t>(level)],
+        file,
+        line,
+        message_text_buf
+    );
+    fflush(stderr);
 }
 
 vis::Logger::~Logger()
