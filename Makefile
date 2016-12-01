@@ -46,8 +46,8 @@ CXX_FLAGS += -fdiagnostics-color
 
 TEST_CCACHE_CLANG=ccache clang++
 TEST_CLANG=clang++
-GTEST_DIR=$(DIR)/vendor/googletest-release-1.7.0
-BENCHMARK_DIR=$(DIR)/vendor/benchmark-1.0.0
+GTEST_DIR=$(DIR)/vendor/googletest-release-1.8.0
+BENCHMARK_DIR=$(DIR)/vendor/benchmark-1.1.0
 
 ALL_WARNINGS=-Werror -Weverything -Wno-variadic-macros -Wno-format-nonliteral -Wno-global-constructors -Wno-exit-time-destructors -Wno-padded -Wno-reserved-id-macro -Wno-gnu-zero-variadic-macro-arguments -Wno-c++98-compat -Wno-documentation-unknown-command
 # Only turn on extra warnings for clang since g++ does not support -Weverything
