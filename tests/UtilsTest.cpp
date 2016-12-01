@@ -2,6 +2,11 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <ncurses.h>
+#include "Source/MacOsXAudioSource.h"
+#include "Utils/Logger.h"
+#include "Utils/ConfigurationUtils.h"
+#include "Domain/Settings.h"
+#include "Domain/VisTypes.h"
 
 TEST(UtilsTest, LowercaseAllLowerCase)
 {
@@ -243,3 +248,23 @@ TEST(UtilsTest, ToUIntZero)
 {
     EXPECT_EQ(0, vis::Utils::to_uint("0"));
 }
+
+#ifdef _OS_OSX
+TEST(UtilsTest, OsxTest)
+{
+    vis::Logger::initialize(VisConstants::k_default_log_path);
+    vis::Settings settings;
+    vis::ConfigurationUtils::load_settings(settings);
+
+    vis::MacOsXAudioSource osxAudioSource{&settings};
+    auto buffer_size = settings.get_sample_size();
+    auto pcm_buffer = static_cast<vis::pcm_stereo_sample *>(
+      calloc(buffer_size, sizeof(vis::pcm_stereo_sample))
+    );
+
+    for (auto i = 0u; i < 100000u; ++i)
+    {
+        osxAudioSource.read(pcm_buffer, buffer_size);
+    }
+}
+#endif
