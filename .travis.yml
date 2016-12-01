@@ -8,26 +8,29 @@ matrix:
       env: COMPILER_NAME=clang CXX=clang++-3.7 CC=clang-3.7
       addons:
         apt:
+          sources:
+            - llvm-toolchain-precise-3.7
+            - ubuntu-toolchain-r-test
           packages:
             - clang-3.7
+            - libfftw3-dev
+            - libncursesw5-dev
+            - libpulse-dev
+
     - os: linux
       compiler: gcc
       env: COMPILER_NAME=gcc CXX=g++-4.9 CC=gcc-4.9
       addons:
         apt:
+          sources:
+            - ubuntu-toolchain-r-test
           packages:
             - g++-4.9
+            - libfftw3-dev
+            - libncursesw5-dev
+            - libpulse-dev
+
     - os: osx
       before_install:
         - brew update
         - brew tap homebrew/dupes && brew install fftw ncurses
-
-addons:
-  apt:
-    sources:
-      - llvm-toolchain-precise-3.7
-      - ubuntu-toolchain-r-test
-    packages:
-      - libfftw3-dev
-      - libncursesw5-dev
-      - libpulse-dev
