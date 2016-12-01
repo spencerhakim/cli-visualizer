@@ -42,6 +42,7 @@ CXX_FLAGS += -march=$(VIS_COMPILER_ARCH)
 CXX_FLAGS += -ffast-math
 CXX_FLAGS += -fno-omit-frame-pointer
 CXX_FLAGS += -D__extern_always_inline=inline
+CXX_FLAGS += -fdiagnostics-color
 
 TEST_CCACHE_CLANG=ccache clang++
 TEST_CLANG=clang++
@@ -103,7 +104,8 @@ endif
 
 # Clang sanitize options
 ifdef SANITIZE
-#to get symbols from clang sanitize, run "export ASAN_SYMBOLIZER_PATH=<path_to_llvm_symbolizer>" on Arch Linux symbolizer is usually at"/usr/bin/llvm-symbolizer"
+#to get symbols from clang sanitize, run "export ASAN_SYMBOLIZER_PATH=<path_to_llvm_symbolizer>"
+#on Arch Linux symbolizer is usually at"/usr/bin/llvm-symbolizer"
 CXX_FLAGS += -fsanitize=$(SANITIZE)
 LD_FLAGS += -fsanitize=$(SANITIZE)
 endif
@@ -179,17 +181,17 @@ perf_tests: prepare_perf_tests build_perf_tests
 .PHONY: prepare
 prepare:
 	mkdir -p $(BUILD_DIR)
-	rm -f $(BUILD_DIR)/$(TARGET)
+	@rm -f $(BUILD_DIR)/$(TARGET)
 
 .PHONY: prepare_tests
 prepare_tests:
 	mkdir -p $(BUILD_TEST_DIR)
-	rm -f $(BUILD_TEST_DIR)/$(TEST_TARGET)
+	@rm -f $(BUILD_TEST_DIR)/$(TEST_TARGET)
 
 .PHONY: prepare_perf_tests
 prepare_perf_tests:
 	mkdir -p $(BUILD_PERF_TEST_DIR)
-	rm -f $(BUILD_PERF_TEST_DIR)/$(PERF_TEST_TARGET)
+	@rm -f $(BUILD_PERF_TEST_DIR)/$(PERF_TEST_TARGET)
 
 .PHONY: build
 build: $(OBJECTS) $(TARGET)
