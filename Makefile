@@ -111,8 +111,8 @@ INCLUDE_PATH = -I/usr/local/include -I/usr/include -I$(DIR)/include -I$(DIR)/src
 LIB_PATH = -L/usr/local/lib -L/usr/lib
 
 # Test paths
-TEST_INCLUDE_PATH = -I$(GTEST_DIR)/include
-TEST_LIB_PATH = -L$(GTEST_DIR)/lib
+TEST_INCLUDE_PATH = -I$(GTEST_DIR)/googletest/include
+TEST_LIB_PATH = -L$(GTEST_DIR)/googlemock/gtest
 PERF_TEST_INCLUDE_PATH = -I$(BENCHMARK_DIR)/include
 PERF_TEST_LIB_PATH = -L$(BENCHMARK_DIR)/lib
 
@@ -162,17 +162,13 @@ CLANG_TIDY_CHECKS=clang-analyzer-*,modernize-*,readability-*,misc-*,cppcoreguide
 ###############################################################################
 
 SOURCES= $(wildcard src/*.cpp) $(wildcard src/*/*.cpp) $(wildcard src/*/*/*.cpp)
-
 HEADERS= $(wildcard include/*.h) $(wildcard include/*/*.h) $(wildcard src/*.h) $(wildcard src/*/*.h) $(wildcard src/*/*/*.h)
-
 OBJECTS= $(addprefix $(BUILD_DIR)/,$(notdir $(SOURCES:.cpp=.o)))
 
 TEST_SOURCES= $(wildcard tests/*.cpp) $(wildcard tests/*/*.cpp) $(wildcard tests/*/*/*.cpp)
-
 TEST_OBJECTS= $(addprefix $(BUILD_TEST_DIR)/,$(notdir $(TEST_SOURCES:.cpp=.o))) $(filter-out $(BUILD_DIR)/$(TARGET).o,$(OBJECTS))
 
 PERF_TEST_SOURCES= $(wildcard perf_tests/*.cpp) $(wildcard perf_tests/*/*.cpp) $(wildcard perf_tests/*/*/*.cpp)
-
 PERF_TEST_OBJECTS= $(addprefix $(BUILD_PERF_TEST_DIR)/,$(notdir $(PERF_TEST_SOURCES:.cpp=.o))) $(filter-out $(BUILD_DIR)/$(TARGET).o,$(OBJECTS))
 
 VPATH= $(dir $(wildcard src/*/ src/*/*/)) $(dir $(wildcard tests/*/ tests/*/*/)) $(dir $(wildcard perf_tests/*/ perf_tests/*/*/))
@@ -187,27 +183,33 @@ test: tests
 
 tests: prepare prepare_gtest prepare_tests build_tests
 
-perf_tests: prepare_perf_tests build_perf_tests
+perf_tests: prepare prepare_benchmark prepare_perf_tests build_perf_tests
 
 .PHONY: prepare
 prepare:
-	mkdir -p $(BUILD_DIR)
+	@mkdir -p $(BUILD_DIR)
 	@rm -f $(BUILD_DIR)/$(TARGET)
 
 .PHONY: prepare_gtest
 prepare_gtest:
-	mkdir -p $(GTEST_DIR)/lib
+	@mkdir -p $(GTEST_DIR)/lib
 	@rm -f $(GTEST_DIR)/lib/*
-	cd $(GTEST_DIR) && cmake . && cmake --build . && mv libg* ./lib/
+	cd $(GTEST_DIR) && \
+	cmake . && \
+	cmake --build .
+
+.PHONY: prepare_benchmark
+prepare_benchmark:
+	# TODO - Build benchmark
 
 .PHONY: prepare_tests
 prepare_tests:
-	mkdir -p $(BUILD_TEST_DIR)
+	@mkdir -p $(BUILD_TEST_DIR)
 	@rm -f $(BUILD_TEST_DIR)/$(TEST_TARGET)
 
 .PHONY: prepare_perf_tests
 prepare_perf_tests:
-	mkdir -p $(BUILD_PERF_TEST_DIR)
+	@mkdir -p $(BUILD_PERF_TEST_DIR)
 	@rm -f $(BUILD_PERF_TEST_DIR)/$(PERF_TEST_TARGET)
 
 .PHONY: build
@@ -237,7 +239,7 @@ uninstall:
 
 install:
 	cp $(BUILD_DIR)/$(TARGET) $(PREFIX)
-#	cp bin/safe_fifo $(PREFIX)
+	# cp bin/safe_fifo $(PREFIX)
 
 ###############################################################################
 ##  BUILD TARGETS                                                            ##
