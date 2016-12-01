@@ -46,6 +46,8 @@ CXX_FLAGS += -fdiagnostics-color
 
 TEST_CCACHE_CLANG=ccache clang++
 TEST_CLANG=clang++
+GTEST_DIR=$(DIR)/vendor/googletest-release-1.7.0
+BENCHMARK_DIR=$(DIR)/vendor/benchmark-1.0.0
 
 ALL_WARNINGS=-Werror -Weverything -Wno-variadic-macros -Wno-format-nonliteral -Wno-global-constructors -Wno-exit-time-destructors -Wno-padded -Wno-reserved-id-macro -Wno-gnu-zero-variadic-macro-arguments -Wno-c++98-compat -Wno-documentation-unknown-command
 # Only turn on extra warnings for clang since g++ does not support -Weverything
@@ -110,13 +112,15 @@ CXX_FLAGS += -fsanitize=$(SANITIZE)
 LD_FLAGS += -fsanitize=$(SANITIZE)
 endif
 
-# Include Paths
-INCLUDE_PATH = -I/usr/local/include -I$(DIR)/include -I$(DIR)/src
-TEST_INCLUDE_PATH = -I/usr/include
-PERF_TEST_INCLUDE_PATH = -I/usr/include
+# Paths
+INCLUDE_PATH = -I/usr/local/include -I/usr/include -I$(DIR)/include -I$(DIR)/src
+LIB_PATH = -L/usr/local/lib -L/usr/lib
 
-# Lib Paths
-LIB_PATH = -L/usr/local/lib
+# Test paths
+TEST_INCLUDE_PATH = -I$(GTEST_DIR)/include
+TEST_LIB_PATH = -L$(GTEST_DIR)/lib
+PERF_TEST_INCLUDE_PATH = -I$(BENCHMARK_DIR)/include
+PERF_TEST_LIB_PATH = -L$(BENCHMARK_DIR)/lib
 
 # Libs
 LIBS = -lfftw3 -lm -lstdc++
@@ -170,11 +174,11 @@ VPATH= $(dir $(wildcard src/*/ src/*/*/)) $(dir $(wildcard tests/*/ tests/*/*/))
 ##  MAIN TARGETS                                                             ##
 ###############################################################################
 
-all: prepare build safe_fifo
+all: prepare build
 
 test: tests
 
-tests: prepare_tests build_tests
+tests: prepare prepare_gtest prepare_tests build_tests
 
 perf_tests: prepare_perf_tests build_perf_tests
 
@@ -182,6 +186,12 @@ perf_tests: prepare_perf_tests build_perf_tests
 prepare:
 	mkdir -p $(BUILD_DIR)
 	@rm -f $(BUILD_DIR)/$(TARGET)
+
+.PHONY: prepare_gtest
+prepare_gtest:
+	mkdir -p $(GTEST_DIR)/lib
+	@rm -f $(GTEST_DIR)/lib/*
+	cd $(GTEST_DIR) && cmake . && cmake --build . && mv libg* ./lib/
 
 .PHONY: prepare_tests
 prepare_tests:
@@ -207,6 +217,7 @@ clean:
 	@rm -rf $(BUILD_DIR)
 	@rm -rf $(BUILD_TEST_DIR)
 	@rm -rf $(BUILD_PERF_TEST_DIR)
+	@rm -rf $(GTEST_DIR)/lib
 	@rm -rf bin/safe_fifo
 
 .PHONY:safe_fifo
@@ -235,7 +246,7 @@ $(BUILD_TEST_DIR)/%.o: %.cpp
 	$(CXX) $(CXX_FLAGS) $(LD_FLAGS) $(INCLUDE_PATH) $(TEST_INCLUDE_PATH) -c $< -o $@
 
 $(TEST_TARGET): $(OBJECTS) $(TEST_OBJECTS)
-	$(CXX) $(CXX_FLAGS) $(LDFLAGS) $(INCLUDE_PATH) $(TEST_INCLUDE_PATH) $(LIB_PATH) -o $(BUILD_TEST_DIR)/$(TEST_TARGET) $(TEST_OBJECTS) $(LIBS) $(TEST_LIBS)
+	$(CXX) $(CXX_FLAGS) $(LDFLAGS) $(INCLUDE_PATH) $(TEST_INCLUDE_PATH) $(LIB_PATH) $(TEST_LIB_PATH) -o $(BUILD_TEST_DIR)/$(TEST_TARGET) $(TEST_OBJECTS) $(LIBS) $(TEST_LIBS)
 	$(BUILD_TEST_DIR)/$(TEST_TARGET)
 
 $(BUILD_PERF_TEST_DIR)/%.o: %.cpp
