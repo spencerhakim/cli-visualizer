@@ -1,18 +1,16 @@
 language: cpp
 
+matrix:
+  include:
+    - os: linux
+      compiler: clang
+    - os: linux
+      compiler: gcc
+    - os: osx
+
 env:
   global:
     - secure: "cIkbooO8GuQlXs5wMeErYzNG8HyOpi3DEOpV5vZdb2DCg8lOCV6S7xhMOsSplOExZrl8nycH88IhsLAyIDn1mc5j2yO4kK8zWm2orXBKIvyltWrtxMC5LoWkimDwBMrNXUtfDZkS4+t31XAi9fIH44R/2OVls3NqA4vYdvch5qRjCZUa6Y42PY1SP4Qy6RYddXJcC8RyNKer2/MyqgfLSYsBFDLridZgcQ/vE7k/ZWuO0/ZXxi2e2/bgaKvXZjjjzJGbesuY7gTbbrmIm72m0qX3guOgbJgVrzPXyhIJVJ6TAjsmUD0ICsG5Ow3j2t9ZvSuWyiaz9xEpIdLC4HZ2el3akX2GP/udZd3q6H79MKb6xopHXeQvcjmddrOsxz6nzt/IDTbbqRW3zgLE9tjNQIme0o3r0M2d+zECGVgHiC3bK1TKzKmusr63T6H0vilQ+cA8uZkNjAwvjgDFuNTI5aTI6e726NPMEztsCi/WdeF6uiMbqsfppPHP/O9ENr39UAmqRUl7wYLOJihdBoCgNZvskO7knP2KwAOa4Y1aIl+NDCPxa5mCCXUvyydctAGPpwMFwkWgJsCpDDwcL3Hbj3QCe90LwpIf8nuTYyr/4j12GfgPYYkuywOWW8yeR0SM85wqWBJGWU9fz6jR0Zjl3yXzVOexB6ZaO3PaAossc4s="
-
-compiler:
-    - clang++
-    - g++
-before_install:
- - "export ENABLE_PULSE=0 && export TMP_CC=$CC && export TMP_CXX=$CXX && export CXX=g++ && cd /usr/src/gtest && sudo cmake . && sudo cmake --build . && sudo mv libg* /usr/local/lib/ ; cd - && export CXX=$TMP_CXX && export CC=$TMP_CC"
-
-install:
-- if [ "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
-- if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.7" CC="clang-3.7"; fi
 
 addons:
   apt:
@@ -22,7 +20,7 @@ addons:
     packages:
     - libfftw3-dev
     - libncursesw5-dev
-    - libgtest-dev
+    - libpulse-dev
     - gcc-4.9
     - g++-4.9
     - clang
@@ -36,3 +34,7 @@ addons:
     build_command_prepend: make clean
     build_command: make && make test
     branch_pattern: coverity_scan
+
+before_install:
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then  brew update; brew tap homebrew/dupes;   fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then  brew install fftw ncurses;              fi
