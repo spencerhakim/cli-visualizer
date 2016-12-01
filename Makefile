@@ -91,12 +91,6 @@ endif
 LD_FLAGS = $(LDFLAGS) -fno-omit-frame-pointer
 PERF_TEST_LD_FLAGS = -fno-omit-frame-pointer
 
-ifeq ($(OS),Darwin)
-LD_FLAGS += -D_XOPEN_SOURCE_EXTENDED
-#El Capitan has SIP, so things need to live in usr/local/bin now.
-PREFIX=/usr/local/bin/
-endif
-
 # DEBUG Settings
 ifdef DEBUG
 OPT_LEVEL=0
@@ -135,16 +129,29 @@ endif
 
 #if this box has an older version of ncurses
 ifneq ("$(wildcard /usr/include/ncursesw/ncurses.h)","")
-	LIBS += -lncursesw
-	CXX_FLAGS += -DNCURSESW
-	LD_FLAGS += -DNCURSESW
+LIBS += -lncursesw
+CXX_FLAGS += -DNCURSESW
+LD_FLAGS += -DNCURSESW
 else
-	LIBS += -lncurses
+LIBS += -lncurses
 endif
 
 #use jemalloc if available
 ifneq ("$(wildcard /usr/lib/libjemalloc.so)","")
 LIBS += -ljemalloc
+endif
+
+# Darwin-specific settings
+ifeq ($(OS),Darwin)
+LD_FLAGS += -D_XOPEN_SOURCE_EXTENDED
+LIBS += -framework CoreServices -framework CoreAudio
+
+#El Capitan has SIP, so things need to live in /usr/local/bin now
+PREFIX=/usr/local/bin/
+
+# Use `brew install`ed ncurses
+INCLUDE_PATH := -I/usr/local/opt/ncurses/include $(INCLUDE_PATH)
+LIB_PATH := -L/usr/local/opt/ncurses/lib $(LIB_PATH)
 endif
 
 #clang tidy checks
