@@ -1,12 +1,26 @@
 language: cpp
+sudo: false
 
 matrix:
   include:
     - os: linux
       compiler: clang
+      env: COMPILER_NAME=clang CXX=clang++-3.7 CC=clang-3.7
+      addons:
+        apt:
+          packages:
+            - clang-3.7
     - os: linux
       compiler: gcc
+      env: COMPILER_NAME=gcc CXX=g++-4.9 CC=gcc-4.9
+      addons:
+        apt:
+          packages:
+            - g++-4.9
     - os: osx
+      before_install:
+        - brew update
+        - brew tap homebrew/dupes && brew install fftw ncurses
 
 env:
   global:
@@ -15,16 +29,13 @@ env:
 addons:
   apt:
     sources:
-    - llvm-toolchain-precise-3.7
-    - ubuntu-toolchain-r-test
+      - llvm-toolchain-precise-3.7
+      - ubuntu-toolchain-r-test
     packages:
-    - libfftw3-dev
-    - libncursesw5-dev
-    - libpulse-dev
-    - gcc-4.9
-    - g++-4.9
-    - clang
-    - clang-3.7
+      - libfftw3-dev
+      - libncursesw5-dev
+      - libpulse-dev
+
   coverity_scan:
     project:
       name: dpayne/cli-visualizer
@@ -34,7 +45,3 @@ addons:
     build_command_prepend: make clean
     build_command: make && make test
     branch_pattern: coverity_scan
-
-before_install:
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then  brew update; brew tap homebrew/dupes;   fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then  brew install fftw ncurses;              fi
