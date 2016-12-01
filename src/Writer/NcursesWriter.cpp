@@ -17,6 +17,8 @@ vis::NcursesWriter::NcursesWriter(const vis::Settings *const settings)
     curs_set(0); // sets the cursor to invisible
     setlocale(LC_ALL, "");
 
+    VIS_LOG(vis::LogLevel::INFO, "ncurses v%s", NCURSES_VERSION);
+
     if (has_colors() == TRUE)
     {
         start_color();        // turns on color
@@ -36,8 +38,7 @@ void vis::NcursesWriter::setup_colors()
         init_pair(i, i, -1);
 
         // initialize colors as background, this is used in write_background to
-        // create a
-        // full block effect without using a custom font
+        // create a full block effect without using a custom font
         init_pair(static_cast<int16_t>(i + COLORS), i, i);
     }
 }
